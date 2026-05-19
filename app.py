@@ -7,7 +7,7 @@ import io
 app = FastAPI()
 
 # Load trained model
-model = tf.keras.models.load_model("/Users/satyamkumarsingh/Documents/dev/CNN/model/Enhanced_cnn_cifar10_model1.h5")
+model = tf.keras.models.load_model("model/Enhanced_cnn_cifar10_model1.h5")
 
 # CIFAR10 Classes
 class_names = [
