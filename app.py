@@ -10,7 +10,7 @@ print("Starting application...")
 app = FastAPI()
 
 # MODEL PATH
-MODEL_PATH = "model/Enhanced_cnn_cifar10_model1.keras"
+MODEL_PATH = "model/cnn_fixed.keras"
 
 print("Checking model path:", MODEL_PATH)
 print("Current working directory:", os.getcwd())
