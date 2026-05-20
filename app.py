@@ -5,28 +5,10 @@ import tensorflow as tf
 import io
 import os
 
-print("Starting application...")
-
 app = FastAPI()
 
-# MODEL PATH
-MODEL_PATH = "model/cnn_clean.keras"
+model = None
 
-print("Checking model path:", MODEL_PATH)
-print("Current working directory:", os.getcwd())
-
-# Check model exists
-if not os.path.exists(MODEL_PATH):
-    raise FileNotFoundError(f"Model file not found: {MODEL_PATH}")
-
-print("Loading model...")
-
-# Load model
-model = tf.keras.models.load_model(MODEL_PATH)
-
-print("Model loaded successfully!")
-
-# Classes
 class_names = [
     'airplane',
     'automobile',
@@ -40,12 +22,26 @@ class_names = [
     'truck'
 ]
 
+# Load model on startup
+@app.on_event("startup")
+async def load_model():
+
+    global model
+
+    print("Loading model...")
+
+    model = tf.keras.models.load_model("model/cnn_clean.keras")
+
+    print("Model loaded successfully!")
+
 @app.get("/")
 def home():
     return {"message": "CNN API Running"}
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
+
+    global model
 
     contents = await file.read()
 
@@ -67,11 +63,3 @@ async def predict(file: UploadFile = File(...)):
         "prediction": predicted_class,
         "confidence": round(confidence * 100, 2)
     }
-
-# IMPORTANT FOR RENDER
-if __name__ == "__main__":
-    import uvicorn
-
-    port = int(os.environ.get("PORT", 8000))
-
-    uvicorn.run(app, host="0.0.0.0", port=port)
