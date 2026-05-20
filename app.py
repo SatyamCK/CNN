@@ -3,13 +3,30 @@ from PIL import Image
 import numpy as np
 import tensorflow as tf
 import io
+import os
+
+print("Starting application...")
 
 app = FastAPI()
 
-# Load trained model
-model = tf.keras.models.load_model("model/Enhanced_cnn_cifar10_model1.keras")
+# MODEL PATH
+MODEL_PATH = "model/Enhanced_cnn_cifar10_model1.keras"
 
-# CIFAR10 Classes
+print("Checking model path:", MODEL_PATH)
+print("Current working directory:", os.getcwd())
+
+# Check model exists
+if not os.path.exists(MODEL_PATH):
+    raise FileNotFoundError(f"Model file not found: {MODEL_PATH}")
+
+print("Loading model...")
+
+# Load model
+model = tf.keras.models.load_model(MODEL_PATH)
+
+print("Model loaded successfully!")
+
+# Classes
 class_names = [
     'airplane',
     'automobile',
@@ -23,36 +40,23 @@ class_names = [
     'truck'
 ]
 
-# Home route
 @app.get("/")
 def home():
-    return {
-        "message": "CIFAR10 Image Classification API Running"
-    }
+    return {"message": "CNN API Running"}
 
-# Prediction route
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
 
-    # Read image
     contents = await file.read()
 
-    # Convert to PIL image
     image = Image.open(io.BytesIO(contents)).convert("RGB")
 
-    # Resize image to CIFAR10 input size
     image = image.resize((32, 32))
 
-    # Convert image to numpy array
-    image_array = np.array(image)
+    image_array = np.array(image) / 255.0
 
-    # Normalize
-    image_array = image_array / 255.0
-
-    # Expand dimensions
     image_array = np.expand_dims(image_array, axis=0)
 
-    # Predict
     predictions = model.predict(image_array)
 
     predicted_class = class_names[np.argmax(predictions)]
@@ -63,3 +67,11 @@ async def predict(file: UploadFile = File(...)):
         "prediction": predicted_class,
         "confidence": round(confidence * 100, 2)
     }
+
+# IMPORTANT FOR RENDER
+if __name__ == "__main__":
+    import uvicorn
+
+    port = int(os.environ.get("PORT", 8000))
+
+    uvicorn.run(app, host="0.0.0.0", port=port)
