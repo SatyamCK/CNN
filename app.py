@@ -23,16 +23,38 @@ class_names = [
 ]
 
 # Load model on startup
+# Load model on startup
 @app.on_event("startup")
 async def load_model():
 
     global model
 
-    print("Loading model...")
+    try:
 
-    model = tf.keras.models.load_model("model/cnn_clean.keras")
+        print("===== STARTUP =====")
 
-    print("Model loaded successfully!")
+        print("Current directory:", os.getcwd())
+
+        print("Root files:", os.listdir())
+
+        if os.path.exists("model"):
+            print("Model folder files:", os.listdir("model"))
+
+        model_path = "model/cnn_clean.keras"
+
+        print("Loading model from:", model_path)
+
+        model = tf.keras.models.load_model(model_path)
+
+        print("===== MODEL LOADED SUCCESSFULLY =====")
+
+    except Exception as e:
+
+        print("===== STARTUP ERROR =====")
+
+        print(str(e))
+
+        raise e
 
 @app.get("/")
 def home():
