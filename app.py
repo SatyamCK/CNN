@@ -40,7 +40,7 @@ async def load_model():
         if os.path.exists("model"):
             print("Model folder files:", os.listdir("model"))
 
-        model_path = "model/cnn_clean.keras"
+        model_path = "model/cnn_final.keras"
 
         print("Loading model from:", model_path)
 
